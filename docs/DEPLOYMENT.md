@@ -26,7 +26,7 @@ This guide will help you deploy SaveWise to production environments.
 ```env
 NODE_ENV=production
 PORT=5000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/savewise
+MONGODB_URI=your_mongoDB_url
 JWT_SECRET=your_super_secure_jwt_secret_here
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
