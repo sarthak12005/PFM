@@ -16,7 +16,7 @@ const Navbar = () => {
     { path: '/budget-planner', label: 'Budget' },
     { path: '/goals', label: 'Goals' },
     { path: '/categories', label: 'Categories' },
-    { path: '/notifications', label: 'Notifications' },
+    // { path: '/notifications', label: 'Notifications' }
     { path: '/profile', label: 'Profile' },
     { path: '/settings', label: 'Settings' },
   ]

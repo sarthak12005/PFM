@@ -23,7 +23,7 @@ ChartJS.register(
 const BarChart = ({
   data,
   title = "Bar Chart",
-  height = 400,
+  height = 350,
   showLegend = true,
   showGrid = true,
   colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
@@ -55,7 +55,7 @@ const BarChart = ({
   // Handle undefined or invalid data
   if (!transformedData || !transformedData.datasets || !Array.isArray(transformedData.datasets) || transformedData.datasets.length === 0) {
     return (
-      <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 p-8">
         <div style={{ height: `${height}px` }} className="flex items-center justify-center">
           <div className="text-center">
             <div className="text-gray-400 mb-2">📊</div>
@@ -173,7 +173,7 @@ const BarChart = ({
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
       <div style={{ height: `${height}px` }}>
         <Bar 
           ref={chartRef}

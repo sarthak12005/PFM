@@ -429,7 +429,7 @@ const Dashboard = () => {
               <p className="text-sm text-gray-600 mt-1">Last 6 months comparison</p>
             </div>
             <div className="p-4 sm:p-6">
-              <div className="h-64 sm:h-80">
+              <div className="h-64 sm:h-80 m-2">
                 <BarChart data={dashboardData.monthlyData} />
               </div>
             </div>

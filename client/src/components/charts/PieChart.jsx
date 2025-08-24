@@ -174,7 +174,7 @@ export const ExpensePieChart = ({ data, title = "Expense Breakdown" }) => {
       data={data}
       title={title}
       colors={expenseColors}
-      height={350}
+      height={250}
     />
   )
 }
@@ -251,7 +251,7 @@ export const DoughnutChart = ({ data, title, height = 400, colors = ['#EF4444', 
   }
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div className="w-full bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
       <div style={{ height: `${height}px` }}>
         <Pie data={processedData} options={options} />
       </div>
