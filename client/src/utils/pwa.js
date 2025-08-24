@@ -3,16 +3,17 @@ import toast from 'react-hot-toast'
 
 // Register service worker
 export const registerServiceWorker = () => {
-  if ('serviceWorker' in navigator) {
+  // Only register service worker in production
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
     window.addEventListener('load', async () => {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js')
         console.log('Service Worker registered successfully:', registration)
-        
+
         // Check for updates
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing
-          
+
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
               // New content is available
@@ -20,12 +21,18 @@ export const registerServiceWorker = () => {
             }
           })
         })
-        
+
         // Listen for controlling service worker changes
+        let refreshing = false;
+
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          window.location.reload()
-        })
-        
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+
+
       } catch (error) {
         console.error('Service Worker registration failed:', error)
       }
@@ -48,8 +55,8 @@ const showUpdateAvailableNotification = () => {
 // Check if app is running as PWA
 export const isPWA = () => {
   return window.matchMedia('(display-mode: standalone)').matches ||
-         window.navigator.standalone === true ||
-         document.referrer.includes('android-app://')
+    window.navigator.standalone === true ||
+    document.referrer.includes('android-app://')
 }
 
 // Install prompt handling
@@ -61,16 +68,16 @@ export const initInstallPrompt = () => {
     e.preventDefault()
     // Stash the event so it can be triggered later
     deferredPrompt = e
-    
+
     // Show install button/banner
     showInstallPrompt()
   })
-  
+
   window.addEventListener('appinstalled', () => {
     console.log('PWA was installed')
     deferredPrompt = null
     hideInstallPrompt()
-    
+
     toast.success('SaveWise installed successfully!', {
       duration: 3000,
       position: 'bottom-center'
@@ -105,16 +112,16 @@ export const installApp = async () => {
     try {
       // Show the install prompt
       deferredPrompt.prompt()
-      
+
       // Wait for the user to respond to the prompt
       const { outcome } = await deferredPrompt.userChoice
-      
+
       if (outcome === 'accepted') {
         console.log('User accepted the install prompt')
       } else {
         console.log('User dismissed the install prompt')
       }
-      
+
       deferredPrompt = null
     } catch (error) {
       console.error('Error during app installation:', error)
@@ -149,7 +156,7 @@ export const initNetworkStatus = () => {
         duration: 2000,
         position: 'bottom-center'
       })
-      
+
       // Trigger background sync if available
       if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then((registration) => {
@@ -165,10 +172,10 @@ export const initNetworkStatus = () => {
       })
     }
   }
-  
+
   window.addEventListener('online', updateOnlineStatus)
   window.addEventListener('offline', updateOnlineStatus)
-  
+
   // Initial status check
   if (!navigator.onLine) {
     updateOnlineStatus()
@@ -180,7 +187,7 @@ export const requestNotificationPermission = async () => {
   if ('Notification' in window) {
     try {
       const permission = await Notification.requestPermission()
-      
+
       if (permission === 'granted') {
         toast.success('Notifications enabled!', {
           duration: 2000
@@ -203,18 +210,24 @@ export const requestNotificationPermission = async () => {
 // Show local notification
 export const showNotification = (title, options = {}) => {
   if ('Notification' in window && Notification.permission === 'granted') {
-    const notification = new Notification(title, {
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/badge-72x72.png',
+    const notificationOptions = {
       vibrate: [100, 50, 100],
       ...options
-    })
-    
+    }
+
+    // Only add icons in production where they exist
+    if (import.meta.env.PROD) {
+      notificationOptions.icon = '/icons/icon-192x192.png'
+      notificationOptions.badge = '/icons/badge-72x72.png'
+    }
+
+    const notification = new Notification(title, notificationOptions)
+
     // Auto close after 5 seconds
     setTimeout(() => {
       notification.close()
     }, 5000)
-    
+
     return notification
   }
 }
@@ -224,7 +237,7 @@ export const initPWA = () => {
   registerServiceWorker()
   initInstallPrompt()
   initNetworkStatus()
-  
+
   // Check for updates every 30 minutes
   setInterval(checkForUpdates, 30 * 60 * 1000)
 }

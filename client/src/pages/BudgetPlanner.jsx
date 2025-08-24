@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { 
-  Target, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  Target,
+  TrendingUp,
+  TrendingDown,
   DollarSign,
   AlertTriangle,
   CheckCircle,
@@ -20,10 +20,11 @@ import BudgetInputForm from '../components/budget/BudgetInputForm'
 import BudgetProgressBar from '../components/budget/BudgetProgressBar'
 import BudgetSummaryCard from '../components/budget/BudgetSummaryCard'
 import AlertBanner from '../components/ui/AlertBanner'
-import { SpendingPieChart } from '../components/charts'
+import { SpendingPieChart } from '../components/charts/SpendingPieChart';
 import MonthSelector from '../components/filters/MonthSelector'
 import { LoadingSpinner } from '../components/ui'
 import toast from 'react-hot-toast'
+import BudgetAllocation from '../components/budget/BudgetAllocation'
 
 const BudgetPlanner = () => {
   const { user } = useAuth()
@@ -32,7 +33,7 @@ const BudgetPlanner = () => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   })
-  
+
   const [budgetData, setBudgetData] = useState({
     categories: [],
     totalBudget: 0,
@@ -40,7 +41,7 @@ const BudgetPlanner = () => {
     savingsGoal: 0,
     alerts: []
   })
-  
+
   const [actualSpending, setActualSpending] = useState([])
   const [showAddCategory, setShowAddCategory] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
@@ -79,7 +80,8 @@ const BudgetPlanner = () => {
       ])
 
       setActualSpending(spendingResponse.data.data || [])
-      setRecentTransactions(transactionsResponse.data.data || [])
+      setRecentTransactions(transactionsResponse.data.data.transactions || [])
+
 
       // Generate budget alerts
       generateBudgetAlerts(budgetResponse.data.data, spendingResponse.data.data || [])
@@ -131,7 +133,7 @@ const BudgetPlanner = () => {
         month: selectedMonth,
         ...budgetData
       })
-      
+
       toast.success('Budget updated successfully!')
       await fetchBudgetData()
     } catch (error) {
@@ -147,7 +149,7 @@ const BudgetPlanner = () => {
         budgetAmount,
         color
       })
-      
+
       toast.success('Category budget updated!')
       await fetchBudgetData()
     } catch (error) {
@@ -176,7 +178,7 @@ const BudgetPlanner = () => {
       const actualCategory = actualSpending.find(ac => ac.category === category.name)
       const spentAmount = actualCategory ? actualCategory.amount : 0
       const progress = category.budgetAmount > 0 ? (spentAmount / category.budgetAmount) * 100 : 0
-      
+
       return {
         ...category,
         spentAmount,
@@ -229,8 +231,8 @@ const BudgetPlanner = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Budget Planner</h1>
           <p className="text-gray-600 mt-1">Plan and track your monthly spending</p>
         </div>
-        
-        <MonthSelector 
+
+        <MonthSelector
           selectedMonth={selectedMonth}
           onMonthChange={setSelectedMonth}
         />
@@ -293,11 +295,10 @@ const BudgetPlanner = () => {
           {budgetAlerts.map((alert) => (
             <div
               key={alert.id}
-              className={`p-4 rounded-lg border-l-4 ${
-                alert.type === 'exceeded'
-                  ? 'bg-red-50 border-red-500 text-red-800'
-                  : 'bg-yellow-50 border-yellow-500 text-yellow-800'
-              }`}
+              className={`p-4 rounded-lg border-l-4 ${alert.type === 'exceeded'
+                ? 'bg-red-50 border-red-500 text-red-800'
+                : 'bg-yellow-50 border-yellow-500 text-yellow-800'
+                }`}
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -328,8 +329,8 @@ const BudgetPlanner = () => {
           <div className="card-content">
             <div className="space-y-4">
               {budgetInsights.categories.map((category) => {
-                const isOverBudget = category.spent > category.budgeted
-                const percentage = category.budgeted > 0 ? (category.spent / category.budgeted) * 100 : 0
+                const isOverBudget = category.spentAmount > category.budgetAmount
+                const percentage = category.budgetAmount > 0 ? (category.spentAmount / category.budgetAmount) * 100 : 0
 
                 return (
                   <div key={category.name} className="space-y-2">
@@ -337,16 +338,15 @@ const BudgetPlanner = () => {
                       <span className="font-medium text-gray-900">{category.name}</span>
                       <div className="text-right">
                         <span className={`font-semibold ${isOverBudget ? 'text-red-600' : 'text-green-600'}`}>
-                          {formatCurrency(category.spent)} / {formatCurrency(category.budgeted)}
+                          {formatCurrency(category.spentAmount)} / {formatCurrency(category.budgetAmount)}
                         </span>
                         <p className="text-xs text-gray-500">{percentage.toFixed(1)}% used</p>
                       </div>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          isOverBudget ? 'bg-red-500' : percentage > 80 ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}
+                        className={`h-2 rounded-full transition-all duration-300 ${isOverBudget ? 'bg-red-500' : percentage > 80 ? 'bg-yellow-500' : 'bg-green-500'
+                          }`}
                         style={{ width: `${Math.min(percentage, 100)}%` }}
                       />
                     </div>
@@ -363,6 +363,7 @@ const BudgetPlanner = () => {
                   </div>
                 )
               })}
+
             </div>
           </div>
         </div>
@@ -463,7 +464,7 @@ const BudgetPlanner = () => {
                     formatCurrency={formatCurrency}
                   />
                 ))}
-                
+
                 {budgetInsights.categories.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     <Target size={48} className="mx-auto mb-4 text-gray-300" />
@@ -488,7 +489,7 @@ const BudgetPlanner = () => {
               <p className="card-description">How your budget is distributed</p>
             </div>
             <div className="card-content">
-              <SpendingPieChart 
+              <SpendingPieChart
                 data={budgetInsights.categories}
                 formatCurrency={formatCurrency}
               />
@@ -517,7 +518,7 @@ const BudgetPlanner = () => {
                     </p>
                   </div>
                 )}
-                
+
                 {budgetInsights.overallProgress <= 70 && (
                   <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center space-x-2">
@@ -544,6 +545,15 @@ const BudgetPlanner = () => {
               </div>
             </div>
           </div>
+
+          {/* Budget Allocation Component */}
+          {/* <BudgetAllocation budgetData={[
+            { category: 'Food', amount: 500, percentage: 25 },
+            { category: 'Housing', amount: 800, percentage: 40 },
+            { category: 'Transportation', amount: 200, percentage: 10 },
+            { category: 'Entertainment', amount: 300, percentage: 15 },
+            { category: 'Others', amount: 200, percentage: 10 }
+          ]} /> */}
         </div>
       </div>
     </div>

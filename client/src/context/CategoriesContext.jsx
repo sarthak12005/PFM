@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { categoriesAPI } from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -13,6 +13,7 @@ export const useCategories = () => {
 }
 
 export const CategoriesProvider = ({ children }) => {
+  console.log("CategoriesProvider mounted 🚀")
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [lastFetch, setLastFetch] = useState(null)
@@ -65,7 +66,7 @@ export const CategoriesProvider = ({ children }) => {
       const response = await categoriesAPI.update(categoryId, categoryData)
       if (response.data.success) {
         const updatedCategory = response.data.data
-        setCategories(prev => prev.map(cat => 
+        setCategories(prev => prev.map(cat =>
           cat._id === categoryId ? updatedCategory : cat
         ))
         toast.success('Category updated successfully!')
@@ -115,7 +116,8 @@ export const CategoriesProvider = ({ children }) => {
     fetchCategories()
   }, [])
 
-  const value = {
+
+  const value = useMemo(() => ({
     categories,
     loading,
     fetchCategories,
@@ -126,14 +128,16 @@ export const CategoriesProvider = ({ children }) => {
     getCategoryByName,
     getCategoryNames,
     refreshCategories,
-    
+
     // Computed values
     expenseCategories: getCategoriesByType('expense'),
     incomeCategories: getCategoriesByType('income'),
     expenseCategoryNames: getCategoryNames('expense'),
     incomeCategoryNames: getCategoryNames('income'),
     allCategoryNames: getCategoryNames()
-  }
+  }), [categories, loading]);
+
+  
 
   return (
     <CategoriesContext.Provider value={value}>

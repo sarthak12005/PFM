@@ -27,10 +27,25 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173", // React frontend
+  "http://127.0.0.1:5173"
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
-  credentials: true
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error("CORS policy does not allow this origin"), false);
+    }
+    return callback(null, true);
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true // ✅ important if you send cookies/JWT
 }));
+
 
 // Body parser middleware
 app.use(express.json({ limit: '10mb' }));
@@ -69,7 +84,7 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  
+
   res.status(err.status || 500).json({
     status: 'error',
     message: err.message || 'Internal server error',

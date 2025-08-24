@@ -6,11 +6,9 @@ const DYNAMIC_CACHE = 'savewise-dynamic-v1.0.0'
 // Files to cache for offline functionality
 const STATIC_FILES = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/manifest.json'
+  // Note: In development, Vite serves files dynamically, so we cache minimal files
+  // In production, this would include the actual built assets
 ]
 
 // API endpoints to cache
@@ -29,10 +27,14 @@ self.addEventListener('install', (event) => {
     caches.open(STATIC_CACHE)
       .then((cache) => {
         console.log('Service Worker: Caching static files')
-        return cache.addAll(STATIC_FILES)
+        // In development, only cache essential files that exist
+        const filesToCache = STATIC_FILES.filter(file => file === '/' || file === '/manifest.json')
+        return cache.addAll(filesToCache)
       })
       .catch((error) => {
         console.error('Service Worker: Error caching static files', error)
+        // Don't fail installation if caching fails in development
+        return Promise.resolve()
       })
   )
   

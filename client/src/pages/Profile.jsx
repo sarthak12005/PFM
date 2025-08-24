@@ -29,7 +29,13 @@ import { useAuth } from '../context/AuthContext'
 import { transactionsAPI, authAPI } from '../services/api'
 import { PieChart, BarChart } from '../components/charts'
 import { LoadingSpinner } from '../components/ui'
-import toast from 'react-hot-toast'
+import toast from 'react-hot-toast';
+import UserProfileCard from '../components/user/UserProfileCard'
+import AchievementBadge from "../components/dashboard/AchievementBadge"
+import FinancialSnapshot from '../components/dashboard/FinancialSnapshot'
+import ExpensePieChart from '../components/charts/ExpensePieChart';
+import ActivityTimeline from '../components/dashboard/ActivityTimeline';
+
 
 const Profile = () => {
   const { user } = useAuth()
@@ -214,7 +220,7 @@ const Profile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - User Profile */}
           <div className="lg:col-span-1 space-y-6">
-            <UserProfileCard 
+            <UserProfileCard
               userInfo={profileData.userInfo}
               onUpdate={handleProfileUpdate}
             />
