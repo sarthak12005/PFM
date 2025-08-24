@@ -13,7 +13,6 @@ export const useCategories = () => {
 }
 
 export const CategoriesProvider = ({ children }) => {
-  console.log("CategoriesProvider mounted 🚀")
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [lastFetch, setLastFetch] = useState(null)

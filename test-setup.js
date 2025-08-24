@@ -128,7 +128,7 @@ if (allChecks) {
   log('1. Make sure MongoDB is running', 'yellow');
   log('2. Start the server: cd server && npm run dev', 'yellow');
   log('3. Start the client: cd client && npm start', 'yellow');
-  log('4. Visit http://localhost:3000 to use SaveWise', 'yellow');
+  log('4. Visit http://localhost:5173 to use SaveWise', 'yellow');
 } else {
   log('⚠️ Some issues were found. Please fix the missing files/directories above.', 'red');
 }
