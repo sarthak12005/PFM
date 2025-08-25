@@ -30,7 +30,6 @@ app.use('/api/', limiter);
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:5173", // React frontend
-  "http://127.0.0.1:5173"
 ];
 
 app.use(cors({

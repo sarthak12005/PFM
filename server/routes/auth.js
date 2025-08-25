@@ -175,8 +175,8 @@ router.post('/login', [
 // @access  Private
 router.get('/me', auth, async (req, res) => {
   try {
-    const {id} = req.user;
-    const user = await User.findById(id).select('+role').populate('totalTransactions');
+    
+    const user = await User.findById(req.user.id).select('+role').populate('totalTransactions');
     
     if (!user) {
       return res.status(404).json({

@@ -345,6 +345,7 @@ const Dashboard = () => {
             trendDirection="up"
             delay="300"
             isCount={true}
+            money={false}
           />
         </div>
 

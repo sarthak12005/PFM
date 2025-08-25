@@ -11,7 +11,8 @@ const DashboardCard = ({
   subtitle,
   onClick,
   loading = false,
-  className = ''
+  className = '',
+  money = true
 }) => {
   const [displayAmount, setDisplayAmount] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
@@ -37,6 +38,17 @@ const DashboardCard = ({
       return `₹${(value / 1000).toFixed(1)}K`
     }
     return `₹${value.toLocaleString()}`
+  }
+
+  const formatValue = (value) => {
+    if (value >= 10000000) {
+      return `${(value / 10000000).toFixed(1)}Cr`
+    } else if (value >= 100000) {
+      return `${(value / 100000).toFixed(1)}L`
+    } else if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}K`
+    }
+    return `${value.toLocaleString()}`
   }
 
   const getTrendColor = () => {
@@ -104,7 +116,7 @@ const DashboardCard = ({
         <p className={`text-3xl font-bold text-gray-900 transition-all duration-300 ${
           isAnimating ? 'scale-110' : 'scale-100'
         }`}>
-          {formatAmount(displayAmount)}
+          {money ? formatAmount(displayAmount) : formatValue(displayAmount)}
         </p>
         {subtitle && (
           <p className="text-sm text-gray-500 mt-1">{subtitle}</p>

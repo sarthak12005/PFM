@@ -53,6 +53,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token')
+      console.log('Checking auth with token:', token)
       if (token) {
         try {
           const response = await authAPI.getMe()
