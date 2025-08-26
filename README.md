@@ -1,6 +1,6 @@
 # 💰 SaveWise - Personal Finance Manager
 
-A modern, user-friendly personal finance management application built with React and Node.js. Track your income, expenses, set budgets, and gain insights into your financial habits.
+A modern, user-friendly personal finance management application built with React and Node.js. 
 
 ## ✨ Features
 
