@@ -5,6 +5,7 @@ import App from './App.jsx'
 import './index.css'
 import { AuthProvider } from './context/AuthContext'
 import { CategoriesProvider } from './context/CategoriesContext'
+import { BrowserRouter } from 'react-router-dom'
 
 import { initPWA } from './utils/pwa'
 
@@ -13,12 +14,12 @@ initPWA()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>
-      <CategoriesProvider>
-
-        <App />
-
-      </CategoriesProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <CategoriesProvider>
+          <App />
+        </CategoriesProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 )

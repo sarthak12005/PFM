@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { categoriesAPI } from '../services/api'
 import toast from 'react-hot-toast'
+import { useAuth } from './AuthContext'  // Your auth hook
+import { useLocation } from 'react-router-dom'
+
 
 const CategoriesContext = createContext()
 
@@ -16,6 +19,9 @@ export const CategoriesProvider = ({ children }) => {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [lastFetch, setLastFetch] = useState(null)
+
+  const { user, token } = useAuth()  // Assuming Auth context gives you user/token
+  const location = useLocation()
 
   // Cache categories for 5 minutes
   const CACHE_DURATION = 5 * 60 * 1000
@@ -111,9 +117,14 @@ export const CategoriesProvider = ({ children }) => {
   }
 
   // Initial fetch
+  // ✅ Key fix: Conditional fetching
   useEffect(() => {
-    fetchCategories()
-  }, [])
+    const isAuthPage = ['/login', '/signup'].includes(location.pathname)
+
+    if (token && !isAuthPage) {
+      fetchCategories()
+    }
+  }, [token, location.pathname])
 
 
   const value = useMemo(() => ({
@@ -136,7 +147,7 @@ export const CategoriesProvider = ({ children }) => {
     allCategoryNames: getCategoryNames()
   }), [categories, loading]);
 
-  
+
 
   return (
     <CategoriesContext.Provider value={value}>
