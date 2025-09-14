@@ -135,44 +135,6 @@ const Login = () => {
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
               <p className="text-gray-600">Sign in to your account to continue</p>
-
-              {/* Enhanced Demo Credentials */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="flex items-center justify-center mb-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2h-6m6 0v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9a2 2 0 012-2h2m0-4h4a2 2 0 014 4v1a2 2 0 01-4 4h-4m-4-4v4a2 2 0 01-4 4H5a2 2 0 01-4-4v-4a2 2 0 014-4h4z" />
-                    </svg>
-                  </div>
-                  <h3 className="ml-2 text-sm font-semibold text-blue-800">Demo Account</h3>
-                </div>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
-                    <span className="font-medium text-blue-700">Email:</span>
-                    <span className="font-mono text-xs text-blue-600">demo@savewise.com</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
-                    <span className="font-medium text-blue-700">Password:</span>
-                    <span className="font-mono text-xs text-blue-600">demo123</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData({
-                      email: 'demo@savewise.com',
-                      password: 'demo123',
-                      rememberMe: false
-                    })
-                  }}
-                  className="mt-3 w-full px-4 py-2 text-sm font-medium text-blue-600 bg-white/80 border border-blue-200 rounded-lg hover:bg-white hover:border-blue-300 transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center space-x-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  <span>Auto-fill Demo Credentials</span>
-                </button>
-              </div>
             </div>
 
             {/* Login Form */}

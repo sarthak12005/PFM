@@ -174,7 +174,7 @@ const AdminDashboard = () => {
         />
         <DashboardCard
           title="Platform Revenue"
-          amount={formatCurrency(dashboardData.transactions.netSavings)}
+          amount={dashboardData.transactions.netSavings}
           icon={DollarSign}
           color="yellow"
           trend="Total savings tracked"
