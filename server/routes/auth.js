@@ -138,7 +138,6 @@ router.post('/login', [
     if (isAdminEmail(email) && user.role !== 'admin') {
       try {
         user = await promoteToAdmin(email);
-        console.log(`Auto-promoted ${email} to admin role`);
       } catch (error) {
         console.error('Error promoting user to admin:', error);
       }

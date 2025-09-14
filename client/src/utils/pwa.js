@@ -8,7 +8,7 @@ export const registerServiceWorker = () => {
     window.addEventListener('load', async () => {
       try {
         const registration = await navigator.serviceWorker.register('/sw.js')
-        console.log('Service Worker registered successfully:', registration)
+        // console.log('Service Worker registered successfully:', registration)
 
         // Check for updates
         registration.addEventListener('updatefound', () => {
@@ -74,7 +74,7 @@ export const initInstallPrompt = () => {
   })
 
   window.addEventListener('appinstalled', () => {
-    console.log('PWA was installed')
+    // console.log('PWA was installed')
     deferredPrompt = null
     hideInstallPrompt()
 
@@ -103,7 +103,7 @@ const showInstallPrompt = () => {
 // Hide install prompt
 const hideInstallPrompt = () => {
   // Implementation to hide install UI
-  console.log('Hiding install prompt')
+  // console.log('Hiding install prompt')
 }
 
 // Trigger app installation
@@ -117,9 +117,9 @@ export const installApp = async () => {
       const { outcome } = await deferredPrompt.userChoice
 
       if (outcome === 'accepted') {
-        console.log('User accepted the install prompt')
+        // console.log('User accepted the install prompt')
       } else {
-        console.log('User dismissed the install prompt')
+        // console.log('User dismissed the install prompt')
       }
 
       deferredPrompt = null

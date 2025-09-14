@@ -18,7 +18,6 @@ router.use(adminAuth);
 // @access  Private (Admin only)
 router.get('/dashboard', async (req, res) => {
   try {
-    console.log('Admin dashboard request from user:', req.admin.email);
 
     // Get basic user statistics
     const totalUsers = await User.countDocuments();
@@ -107,7 +106,7 @@ router.get('/dashboard', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Admin dashboard error:', error);
+    // console.error('Admin dashboard error:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching admin dashboard data',
