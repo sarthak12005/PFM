@@ -146,14 +146,14 @@ const FinancialSnapshot = ({ summary }) => {
           return (
             <div 
               key={card.title}
-              className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden"
+              className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden p-1"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Background gradient decoration */}
               <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${colorClasses.gradient} opacity-5 rounded-full transform translate-x-8 -translate-y-8`}></div>
               
-              <div className="card-content relative">
-                <div className="flex items-center justify-between mb-3">
+              <div className="card-content relative ">
+                <div className="flex items-center justify-between mb-2 gap-2">
                   <div className={`p-2 rounded-lg ${colorClasses.bg} ${colorClasses.border} border`}>
                     <Icon size={20} className={colorClasses.icon} />
                   </div>
