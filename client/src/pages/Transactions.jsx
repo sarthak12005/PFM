@@ -267,7 +267,7 @@ const Transactions = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 opacity-5 rounded-full transform translate-x-8 -translate-y-8"></div>
           <div className="card-content relative">
             <div className="flex items-center justify-between">
-              <div>
+              <div className='p-4'>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Income</p>
                 <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
                 <p className="text-xs text-green-500 mt-1">+12.5% from last month</p>
@@ -283,7 +283,7 @@ const Transactions = () => {
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 opacity-5 rounded-full transform translate-x-8 -translate-y-8"></div>
           <div className="card-content relative">
             <div className="flex items-center justify-between">
-              <div>
+              <div className='p-4'>
                 <p className="text-sm font-medium text-gray-600 mb-1">Total Expenses</p>
                 <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
                 <p className="text-xs text-red-500 mt-1">+8.2% from last month</p>
@@ -299,7 +299,7 @@ const Transactions = () => {
           <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${totalIncome - totalExpenses >= 0 ? 'from-blue-500 to-blue-600' : 'from-red-500 to-red-600'} opacity-5 rounded-full transform translate-x-8 -translate-y-8`}></div>
           <div className="card-content relative">
             <div className="flex items-center justify-between">
-              <div>
+              <div className='p-4'>
                 <p className="text-sm font-medium text-gray-600 mb-1">Net Balance</p>
                 <p className={`text-2xl font-bold ${totalIncome - totalExpenses >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                   {formatCurrency(totalIncome - totalExpenses)}
