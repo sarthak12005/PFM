@@ -351,7 +351,7 @@ const ProfileSettings = ({ settings, onUpdate }) => {
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  className="mt-1 py-2 px-1  focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-black/50 rounded-md"
                 />
               </div>
 
@@ -365,7 +365,7 @@ const ProfileSettings = ({ settings, onUpdate }) => {
                   id="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  className="mt-1 py-2 px-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-black/50 rounded-md"
                 />
               </div>
 
@@ -379,7 +379,7 @@ const ProfileSettings = ({ settings, onUpdate }) => {
                   rows={3}
                   value={formData.bio || ''}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  className="mt-1 py-2 px-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border border-black/50 rounded-md"
                   placeholder="Tell us about yourself..."
                 />
               </div>
@@ -446,7 +446,7 @@ const SecuritySettings = ({ settings, onUpdate, onPasswordChange }) => {
                   id="currentPassword"
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  className="ṃt-1 py-2 px-1 focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 shadow-sm sm:text-sm border border-gray-300 rounded-md"
                 />
                 <button
                   type="button"
@@ -469,7 +469,7 @@ const SecuritySettings = ({ settings, onUpdate, onPasswordChange }) => {
                   id="newPassword"
                   value={passwordData.newPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  className="ṃt-1 py-2 px-1 border focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 shadow-sm sm:text-sm border-gray-300 rounded-md"
                 />
                 <button
                   type="button"
@@ -492,7 +492,7 @@ const SecuritySettings = ({ settings, onUpdate, onPasswordChange }) => {
                   id="confirmPassword"
                   value={passwordData.confirmPassword}
                   onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 shadow-sm sm:text-sm border-gray-300 rounded-md"
+                  className="ṃt-1 py-2 px-1 border focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 shadow-sm sm:text-sm border-gray-300 rounded-md"
                 />
                 <button
                   type="button"
