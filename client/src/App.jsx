@@ -116,7 +116,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      {window.location.pathname !== '/login' && window.location.pathname !== '/register' && <Footer />}
 
       {/* Toast notifications */}
       <Toaster

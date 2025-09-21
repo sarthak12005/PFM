@@ -67,12 +67,12 @@ const BudgetSummaryCard = ({
   const colorClasses = getColorClasses(color)
 
   return (
-    <div className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden">
+    <div className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden p-2">
       {/* Background gradient decoration */}
       <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${colorClasses.gradient} opacity-5 rounded-full transform translate-x-8 -translate-y-8`}></div>
       
       <div className="card-content relative">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-1">
           <div className={`p-3 rounded-lg ${colorClasses.bg} ${colorClasses.border} border`}>
             <Icon size={24} className={colorClasses.icon} />
           </div>
@@ -102,7 +102,7 @@ const BudgetSummaryCard = ({
           
           {/* Progress Bar */}
           {progress !== undefined && (
-            <div className="mt-3">
+            <div className="mt-2">
               <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                 <span>Progress</span>
                 <span>{Math.round(progress)}%</span>
