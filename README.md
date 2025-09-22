@@ -93,7 +93,7 @@ This project has been fully cleaned up and optimized:
    ```
 
 5. **Access the application**
-   - Frontend: http://localhost:3000
+   - Frontend: http://localhost:5173
    - Backend API: http://localhost:5000
 
 ## 📖 User Guide
@@ -195,33 +195,9 @@ The API follows RESTful conventions. Key endpoints:
 - `GET /api/budget/:month` - Get monthly budget
 - `POST /api/budget` - Create/update budget
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [User Guide](docs/USER_GUIDE.md)
-2. Look at [Common Issues](docs/TROUBLESHOOTING.md)
-3. Create an issue on GitHub
-4. Contact support at support@savewise.com
 
 ## 🙏 Acknowledgments
 
 - Icons by [Lucide React](https://lucide.dev/)
 - Charts by [Chart.js](https://www.chartjs.org/)
 - Styling by [Tailwind CSS](https://tailwindcss.com/)
-
----
-
-Made with ❤️ by the SaveWise Team
