@@ -52,7 +52,11 @@ const userSchema = new mongoose.Schema({
       monthlyReport: { type: Boolean, default: true },
       highExpenseAlert: { type: Boolean, default: true },
       budgetAlert: { type: Boolean, default: true },
-      emailNotifications: { type: Boolean, default: true },
+      emailNotifications: { 
+           budgetAlerts: {type: Boolean, default: true},
+           goalUpdates: {type: Boolean, default: true},
+           securityAlerts: {type: Boolean, default: true}
+       },
       pushNotifications: { type: Boolean, default: false }
     },
     budgetGoals: {
