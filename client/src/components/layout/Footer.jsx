@@ -44,7 +44,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/budget-planner" className="text-gray-300 hover:text-white transition-colors">
-                  Budget Planner
+                  Budget
                 </Link>
               </li>
               <li>
@@ -53,8 +53,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/analytics" className="text-gray-300 hover:text-white transition-colors">
-                  Analytics
+                <Link to="/profile" className="text-gray-300 hover:text-white transition-colors">
+                  Profile
                 </Link>
               </li>
 
@@ -95,15 +95,12 @@ const Footer = () => {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <span className="text-gray-300">© {currentYear} SaveWise Technologies Pvt. Ltd.</span>
-              <span className="text-gray-300">Made with</span>
-              <Heart size={16} className="text-red-500" />
-              <span className="text-gray-300">in India</span>
+              <span className="text-gray-300">© {currentYear} SaveWise </span>
             </div>
             
             <div className="flex items-center space-x-2 text-gray-300">
               <MapPin size={16} />
-              <span className="text-sm">Bangalore, Karnataka, India</span>
+              <span className="text-sm">Jalna, Maharashtra, India</span>
             </div>
           </div>
           
