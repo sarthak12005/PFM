@@ -30,6 +30,7 @@ app.use('/api/', limiter);
 const allowedOrigins = [
   "http://localhost:5173", // React frontend
   "http://localhost:5173", // React frontend
+  "https://pfm-finance.vercel.app/",
   process.env.CLIENT_URL
 ];
 
