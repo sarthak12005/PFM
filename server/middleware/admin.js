@@ -41,7 +41,7 @@ const adminAuth = async (req, res, next) => {
     req.admin = user;
     next();
   } catch (error) {
-    console.error('Admin auth middleware error:', error);
+    // console.error('Admin auth middleware error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error during admin authentication'
@@ -72,7 +72,7 @@ const checkAdminPermission = (permission) => {
 
       next();
     } catch (error) {
-      console.error('Admin permission check error:', error);
+      // console.error('Admin permission check error:', error);
       res.status(500).json({
         success: false,
         message: 'Server error during permission check'

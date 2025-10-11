@@ -54,7 +54,7 @@ const auth = async (req, res, next) => {
 
       next();
     } catch (tokenError) {
-      console.error('Token verification error:', tokenError);
+      // console.error('Token verification error:', tokenError);
       return res.status(401).json({
         success: false,
         message: 'Token is not valid'
@@ -62,7 +62,7 @@ const auth = async (req, res, next) => {
     }
 
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    // console.error('Auth middleware error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error in authentication'

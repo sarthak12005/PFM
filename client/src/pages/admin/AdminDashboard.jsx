@@ -76,8 +76,8 @@ const AdminDashboard = () => {
         throw new Error(data.message || 'Invalid response format')
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error)
-      toast.error(`Failed to load dashboard data: ${error.message}`)
+      // console.error('Error fetching dashboard data:', error)
+      toast.error(`Failed to load dashboard data: ${error.message}`);
 
       // Set default data to prevent UI crashes
       setDashboardData({

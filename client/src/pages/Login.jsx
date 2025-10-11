@@ -80,19 +80,19 @@ const Login = () => {
         navigate(from, { replace: true })
       }
     } catch (error) {
-      console.error('Login error:', error)
+      // console.error('Login error:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
+    <div className="max-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50">
       <div className="flex min-h-screen">
         {/* Left Side - Illustration */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-teal-600 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative z-10 flex flex-col justify-center items-center p-12 text-white">
+          <div className="relative z-10 flex flex-col justify-center items-center p-10 text-white">
             <div className="mb-8">
               <TrendingUp size={80} className="text-white/90" />
             </div>
