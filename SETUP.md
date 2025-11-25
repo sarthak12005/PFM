@@ -180,4 +180,3 @@ All major UI components are implemented:
 - Interactive charts (Recharts)
 - Form components with validation
 - Loading states and animations
-- Toast notifications
