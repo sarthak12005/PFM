@@ -181,4 +181,3 @@ All major UI components are implemented:
 - Form components with validation
 - Loading states and animations
 - Toast notifications
-- Modal dialogs
