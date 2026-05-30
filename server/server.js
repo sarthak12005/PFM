@@ -13,6 +13,7 @@ connectDB();
 
 const app = express();
 
+app.set('trust proxy', 1);
 // Security middleware
 app.use(helmet());
 
@@ -30,7 +31,7 @@ app.use('/api/', limiter);
 const allowedOrigins = [
   "http://localhost:5173", // React frontend
   "http://localhost:5173", // React frontend
-  "https://pfm-finance.vercel.app/",
+  "https://pfm-finance.vercel.app",
   process.env.CLIENT_URL
 ];
 
