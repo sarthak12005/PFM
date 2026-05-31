@@ -21,12 +21,11 @@ const API_CACHE_PATTERNS = [
 
 // Install event - cache static files
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...')
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('Service Worker: Caching static files')
+
         // In development, only cache essential files that exist
         const filesToCache = STATIC_FILES.filter(file => file === '/' || file === '/manifest.json')
         return cache.addAll(filesToCache)
@@ -44,7 +43,6 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...')
   
   event.waitUntil(
     caches.keys()

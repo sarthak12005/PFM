@@ -39,11 +39,6 @@ router.get('/', auth, [
       search
     } = req.query;
 
-    // Debug log
-    console.log('📥 GET /transactions request:');
-    console.log('  User ID from JWT:', req.user.id);
-    console.log('  Filters:', { type, category, startDate, endDate });
-
     // Build query
     const query = { user: req.user.id };
 

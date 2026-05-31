@@ -73,13 +73,6 @@ const BudgetPlanner = () => {
         999,
       );
 
-      // Debug logs
-      console.log("🔍 Fetching transactions for:");
-      console.log("  Month:", selectedMonth);
-      console.log("  Start Date:", startDate.toISOString());
-      console.log("  End Date:", endDate.toISOString());
-      console.log("  User ID:", user?.id);
-      console.log("  Authenticated:", !!localStorage.getItem("token"));
 
       const [spendingResponse, transactionsResponse] = await Promise.all([
         transactionsAPI.getCategories({
@@ -96,14 +89,6 @@ const BudgetPlanner = () => {
           sortOrder: "desc",
         }),
       ]);
-
-      // Debug API responses
-      console.log("📊 Spending Response:", spendingResponse.data.data);
-      console.log("📋 Transactions Response:", transactionsResponse.data.data);
-      console.log(
-        "Total transactions:",
-        transactionsResponse.data.data?.pagination?.total || 0,
-      );
 
       setActualSpending(spendingResponse.data.data || []);
       setRecentTransactions(transactionsResponse.data.data.transactions || []);

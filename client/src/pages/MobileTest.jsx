@@ -42,7 +42,6 @@ const MobileTest = () => {
   })
 
   const handleFormSubmit = (data) => {
-    console.log('Form submitted:', data)
     toast.success('Transaction added successfully!', {
       duration: 3000,
       position: 'top-center'
@@ -292,7 +291,6 @@ const MobileTest = () => {
             description: 'Test description'
           }}
           onSubmit={(data) => {
-            console.log('Modal submitted:', data)
             setShowModal(false)
           }}
           onCancel={() => setShowModal(false)}
