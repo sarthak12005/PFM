@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Target,
   TrendingUp,
@@ -12,187 +12,232 @@ import {
   Plus,
   Edit3,
   Trash2,
-  Save
-} from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { budgetAPI, transactionsAPI } from '../services/api'
-import BudgetInputForm from '../components/budget/BudgetInputForm'
-import BudgetProgressBar from '../components/budget/BudgetProgressBar'
-import BudgetSummaryCard from '../components/budget/BudgetSummaryCard'
-import AlertBanner from '../components/ui/AlertBanner'
-import { BarChart } from '../components/charts'
-import SpendingPieChart from '../components/charts/SpendingPieChart'
-import MonthSelector from '../components/filters/MonthSelector'
-import { LoadingSpinner } from '../components/ui'
-import toast from 'react-hot-toast'
-import BudgetAllocation from '../components/budget/BudgetAllocation'
+  Save,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { budgetAPI, transactionsAPI } from "../services/api";
+import BudgetInputForm from "../components/budget/BudgetInputForm";
+import BudgetProgressBar from "../components/budget/BudgetProgressBar";
+import BudgetSummaryCard from "../components/budget/BudgetSummaryCard";
+import AlertBanner from "../components/ui/AlertBanner";
+import { BarChart } from "../components/charts";
+import SpendingPieChart from "../components/charts/SpendingPieChart";
+import MonthSelector from "../components/filters/MonthSelector";
+import { LoadingSpinner } from "../components/ui";
+import toast from "react-hot-toast";
+import BudgetAllocation from "../components/budget/BudgetAllocation";
 
 const BudgetPlanner = () => {
-  const { user } = useAuth()
-  const [loading, setLoading] = useState(true)
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(() => {
-    const now = new Date()
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-  })
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
 
   const [budgetData, setBudgetData] = useState({
     categories: [],
     totalBudget: 0,
     totalSpent: 0,
     savingsGoal: 0,
-    alerts: []
-  })
+    alerts: [],
+  });
 
-  const [actualSpending, setActualSpending] = useState([])
-  const [showAddCategory, setShowAddCategory] = useState(false)
-  const [editingCategory, setEditingCategory] = useState(null)
-  const [recentTransactions, setRecentTransactions] = useState([])
-  const [budgetAlerts, setBudgetAlerts] = useState([])
+  const [actualSpending, setActualSpending] = useState([]);
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [budgetAlerts, setBudgetAlerts] = useState([]);
 
   useEffect(() => {
-    fetchBudgetData()
-  }, [selectedMonth])
+    fetchBudgetData();
+  }, [selectedMonth]);
 
   const fetchBudgetData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       // Fetch budget data
-      const budgetResponse = await budgetAPI.getBudget(selectedMonth)
-      setBudgetData(budgetResponse.data.data)
+      const budgetResponse = await budgetAPI.getBudget(selectedMonth);
+      setBudgetData(budgetResponse.data.data);
 
       // Fetch actual spending for the month
-      const startDate = new Date(`${selectedMonth}-01`)
-      const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0)
+      const startDate = new Date(`${selectedMonth}-01`);
+
+      const endDate = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
+
+      // Debug logs
+      console.log("🔍 Fetching transactions for:");
+      console.log("  Month:", selectedMonth);
+      console.log("  Start Date:", startDate.toISOString());
+      console.log("  End Date:", endDate.toISOString());
+      console.log("  User ID:", user?.id);
+      console.log("  Authenticated:", !!localStorage.getItem("token"));
 
       const [spendingResponse, transactionsResponse] = await Promise.all([
         transactionsAPI.getCategories({
-          type: 'expense',
+          type: "expense",
           startDate: startDate.toISOString(),
-          endDate: endDate.toISOString()
+          endDate: endDate.toISOString(),
         }),
         transactionsAPI.getAll({
-          type: 'expense',
+          type: "expense",
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
           limit: 10,
-          sortBy: 'date',
-          sortOrder: 'desc'
-        })
-      ])
+          sortBy: "date",
+          sortOrder: "desc",
+        }),
+      ]);
 
-      setActualSpending(spendingResponse.data.data || [])
-      setRecentTransactions(transactionsResponse.data.data.transactions || [])
+      // Debug API responses
+      console.log("📊 Spending Response:", spendingResponse.data.data);
+      console.log("📋 Transactions Response:", transactionsResponse.data.data);
+      console.log(
+        "Total transactions:",
+        transactionsResponse.data.data?.pagination?.total || 0,
+      );
 
+      setActualSpending(spendingResponse.data.data || []);
+      setRecentTransactions(transactionsResponse.data.data.transactions || []);
 
       // Generate budget alerts
-      generateBudgetAlerts(budgetResponse.data.data, spendingResponse.data.data || [])
-
+      generateBudgetAlerts(
+        budgetResponse.data.data,
+        spendingResponse.data.data || [],
+      );
     } catch (error) {
-      console.error('Error fetching budget data:', error)
-      toast.error('Failed to load budget data')
+      console.error("❌ Error fetching budget data:", error);
+      console.error("Error details:", error.response?.data);
+      toast.error(
+        "Failed to load budget data: " +
+          (error.response?.data?.message || error.message),
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const generateBudgetAlerts = (budget, spending) => {
-    const alerts = []
+    const alerts = [];
 
     if (budget.categories && spending) {
-      budget.categories.forEach(budgetCategory => {
-        const actualCategory = spending.find(s => s.category === budgetCategory.name)
-        const spent = actualCategory ? actualCategory.amount : 0
-        const budgetAmount = budgetCategory.budgetAmount || 0
-        const percentage = budgetAmount > 0 ? (spent / budgetAmount) * 100 : 0
+      budget.categories.forEach((budgetCategory) => {
+        const actualCategory = spending.find(
+          (s) => s.category === budgetCategory.name,
+        );
+        const spent = actualCategory ? actualCategory.amount : 0;
+        const budgetAmount = budgetCategory.budgetAmount || 0;
+        const percentage = budgetAmount > 0 ? (spent / budgetAmount) * 100 : 0;
 
         if (percentage >= 100) {
           alerts.push({
             id: `exceeded-${budgetCategory.name}`,
-            type: 'exceeded',
+            type: "exceeded",
             category: budgetCategory.name,
             message: `You've exceeded your ${budgetCategory.name} budget by ${formatCurrency(spent - budgetAmount)}`,
-            percentage: percentage.toFixed(1)
-          })
+            percentage: percentage.toFixed(1),
+          });
         } else if (percentage >= 80) {
           alerts.push({
             id: `warning-${budgetCategory.name}`,
-            type: 'warning',
+            type: "warning",
             category: budgetCategory.name,
             message: `You've used ${percentage.toFixed(1)}% of your ${budgetCategory.name} budget`,
-            percentage: percentage.toFixed(1)
-          })
+            percentage: percentage.toFixed(1),
+          });
         }
-      })
+      });
     }
 
-    setBudgetAlerts(alerts)
-  }
+    setBudgetAlerts(alerts);
+  };
 
   const handleBudgetUpdate = async (budgetData) => {
     try {
       await budgetAPI.createOrUpdateBudget({
         month: selectedMonth,
-        ...budgetData
-      })
+        ...budgetData,
+      });
 
-      toast.success('Budget updated successfully!')
-      await fetchBudgetData()
+      toast.success("Budget updated successfully!");
+      await fetchBudgetData();
     } catch (error) {
-      console.error('Error updating budget:', error)
-      toast.error('Failed to update budget')
+      console.error("Error updating budget:", error);
+      toast.error("Failed to update budget");
     }
-  }
+  };
 
   const handleCategoryUpdate = async (categoryName, budgetAmount, color) => {
     try {
       await budgetAPI.updateCategoryBudget(selectedMonth, {
         categoryName,
         budgetAmount,
-        color
-      })
+        color,
+      });
 
-      toast.success('Category budget updated!')
-      await fetchBudgetData()
+      toast.success("Category budget updated!");
+      await fetchBudgetData();
     } catch (error) {
-      console.error('Error updating category:', error)
-      toast.error('Failed to update category')
+      console.error("Error updating category:", error);
+      toast.error("Failed to update category");
     }
-  }
+  };
 
   const handleAlertDismiss = async (alertId) => {
     try {
-      await budgetAPI.markAlertRead(selectedMonth, alertId)
-      setBudgetData(prev => ({
+      await budgetAPI.markAlertRead(selectedMonth, alertId);
+      setBudgetData((prev) => ({
         ...prev,
-        alerts: prev.alerts.filter(alert => alert._id !== alertId)
-      }))
-      toast.success('Alert dismissed')
+        alerts: prev.alerts.filter((alert) => alert._id !== alertId),
+      }));
+      toast.success("Alert dismissed");
     } catch (error) {
-      console.error('Error dismissing alert:', error)
-      toast.error('Failed to dismiss alert')
+      console.error("Error dismissing alert:", error);
+      toast.error("Failed to dismiss alert");
     }
-  }
+  };
 
   // Calculate budget progress and insights
   const budgetInsights = useMemo(() => {
-    const categoriesWithProgress = budgetData.categories.map(category => {
-      const actualCategory = actualSpending.find(ac => ac.category === category.name)
-      const spentAmount = actualCategory ? actualCategory.amount : 0
-      const progress = category.budgetAmount > 0 ? (spentAmount / category.budgetAmount) * 100 : 0
+    const categoriesWithProgress = budgetData.categories.map((category) => {
+      const actualCategory = actualSpending.find(
+        (ac) => ac.category === category.name,
+      );
+      const spentAmount = actualCategory ? actualCategory.amount : 0;
+      const progress =
+        category.budgetAmount > 0
+          ? (spentAmount / category.budgetAmount) * 100
+          : 0;
 
       return {
         ...category,
         spentAmount,
         progress,
         remaining: Math.max(0, category.budgetAmount - spentAmount),
-        status: progress >= 100 ? 'exceeded' : progress >= 80 ? 'warning' : 'good'
-      }
-    })
+        status:
+          progress >= 100 ? "exceeded" : progress >= 80 ? "warning" : "good",
+      };
+    });
 
-    const totalBudgeted = categoriesWithProgress.reduce((sum, cat) => sum + cat.budgetAmount, 0)
-    const totalSpent = categoriesWithProgress.reduce((sum, cat) => sum + cat.spentAmount, 0)
-    const totalRemaining = Math.max(0, totalBudgeted - totalSpent)
-    const overallProgress = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0
+    const totalBudgeted = categoriesWithProgress.reduce(
+      (sum, cat) => sum + cat.budgetAmount,
+      0,
+    );
+    const totalSpent = categoriesWithProgress.reduce(
+      (sum, cat) => sum + cat.spentAmount,
+      0,
+    );
+    const totalRemaining = Math.max(0, totalBudgeted - totalSpent);
+    const overallProgress =
+      totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
 
     return {
       categories: categoriesWithProgress,
@@ -201,27 +246,27 @@ const BudgetPlanner = () => {
       totalRemaining,
       overallProgress,
       savingsGoal: budgetData.savingsGoal,
-      potentialSavings: totalRemaining
-    }
-  }, [budgetData, actualSpending])
+      potentialSavings: totalRemaining,
+    };
+  }, [budgetData, actualSpending]);
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount)
-  }
+    }).format(amount);
+  };
 
   const getMonthName = (monthString) => {
-    const [year, month] = monthString.split('-')
-    const date = new Date(year, month - 1)
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-  }
+    const [year, month] = monthString.split("-");
+    const date = new Date(year, month - 1);
+    return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  };
 
   if (loading) {
-    return <LoadingSpinner message="Loading budget data..." />
+    return <LoadingSpinner message="Loading budget data..." />;
   }
 
   return (
@@ -229,8 +274,12 @@ const BudgetPlanner = () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Budget Planner</h1>
-          <p className="text-gray-600 mt-1">Plan and track your monthly spending</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Budget Planner
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Plan and track your monthly spending
+          </p>
         </div>
 
         <MonthSelector
@@ -281,7 +330,12 @@ const BudgetPlanner = () => {
           amount={budgetInsights.savingsGoal}
           icon={TrendingUp}
           color="purple"
-          progress={budgetInsights.savingsGoal > 0 ? (budgetInsights.potentialSavings / budgetInsights.savingsGoal) * 100 : 0}
+          progress={
+            budgetInsights.savingsGoal > 0
+              ? (budgetInsights.potentialSavings / budgetInsights.savingsGoal) *
+                100
+              : 0
+          }
           formatCurrency={formatCurrency}
         />
       </div>
@@ -296,10 +350,11 @@ const BudgetPlanner = () => {
           {budgetAlerts.map((alert) => (
             <div
               key={alert.id}
-              className={`p-4 rounded-lg border-l-4 ${alert.type === 'exceeded'
-                ? 'bg-red-50 border-red-500 text-red-800'
-                : 'bg-yellow-50 border-yellow-500 text-yellow-800'
-                }`}
+              className={`p-4 rounded-lg border-l-4 ${
+                alert.type === "exceeded"
+                  ? "bg-red-50 border-red-500 text-red-800"
+                  : "bg-yellow-50 border-yellow-500 text-yellow-800"
+              }`}
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -325,29 +380,47 @@ const BudgetPlanner = () => {
               <BarChart3 size={20} className="text-blue-600" />
               <h3 className="card-title">Category Budget Analysis</h3>
             </div>
-            <p className="card-description">Compare budgeted vs actual spending by category</p>
+            <p className="card-description">
+              Compare budgeted vs actual spending by category
+            </p>
           </div>
           <div className="card-content">
             <div className="space-y-4">
               {budgetInsights.categories.map((category) => {
-                const isOverBudget = category.spentAmount > category.budgetAmount
-                const percentage = category.budgetAmount > 0 ? (category.spentAmount / category.budgetAmount) * 100 : 0
+                const isOverBudget =
+                  category.spentAmount > category.budgetAmount;
+                const percentage =
+                  category.budgetAmount > 0
+                    ? (category.spentAmount / category.budgetAmount) * 100
+                    : 0;
 
                 return (
                   <div key={category.name} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{category.name}</span>
+                      <span className="font-medium text-gray-900">
+                        {category.name}
+                      </span>
                       <div className="text-right">
-                        <span className={`font-semibold ${isOverBudget ? 'text-red-600' : 'text-green-600'}`}>
-                          {formatCurrency(category.spentAmount)} / {formatCurrency(category.budgetAmount)}
+                        <span
+                          className={`font-semibold ${isOverBudget ? "text-red-600" : "text-green-600"}`}
+                        >
+                          {formatCurrency(category.spentAmount)} /{" "}
+                          {formatCurrency(category.budgetAmount)}
                         </span>
-                        <p className="text-xs text-gray-500">{percentage.toFixed(1)}% used</p>
+                        <p className="text-xs text-gray-500">
+                          {percentage.toFixed(1)}% used
+                        </p>
                       </div>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full transition-all duration-300 ${isOverBudget ? 'bg-red-500' : percentage > 80 ? 'bg-yellow-500' : 'bg-green-500'
-                          }`}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          isOverBudget
+                            ? "bg-red-500"
+                            : percentage > 80
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
+                        }`}
                         style={{ width: `${Math.min(percentage, 100)}%` }}
                       />
                     </div>
@@ -358,13 +431,13 @@ const BudgetPlanner = () => {
                     )}
                     {category.remaining < 0 && (
                       <p className="text-xs text-red-600">
-                        {formatCurrency(Math.abs(category.remaining))} over budget
+                        {formatCurrency(Math.abs(category.remaining))} over
+                        budget
                       </p>
                     )}
                   </div>
-                )
+                );
               })}
-
             </div>
           </div>
         </div>
@@ -376,26 +449,39 @@ const BudgetPlanner = () => {
               <DollarSign size={20} className="text-green-600" />
               <h3 className="card-title">Recent Transactions</h3>
             </div>
-            <p className="card-description">Latest expenses affecting your budget</p>
+            <p className="card-description">
+              Latest expenses affecting your budget
+            </p>
           </div>
           <div className="card-content">
             <div className="space-y-3">
               {(recentTransactions || []).slice(0, 8).map((transaction) => {
-                const budgetCategory = budgetData.categories?.find(c => c.name === transaction.category)
-                const isTracked = !!budgetCategory
+                const budgetCategory = budgetData.categories?.find(
+                  (c) => c.name === transaction.category,
+                );
+                const isTracked = !!budgetCategory;
 
                 return (
-                  <div key={transaction._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div
+                    key={transaction._id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{transaction.title}</p>
+                      <p className="font-medium text-gray-900">
+                        {transaction.title}
+                      </p>
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
                         <span>{transaction.category}</span>
                         <span>•</span>
-                        <span>{new Date(transaction.date).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(transaction.date).toLocaleDateString()}
+                        </span>
                         {isTracked && (
                           <>
                             <span>•</span>
-                            <span className="text-blue-600">Tracked in budget</span>
+                            <span className="text-blue-600">
+                              Tracked in budget
+                            </span>
                           </>
                         )}
                       </div>
@@ -406,7 +492,7 @@ const BudgetPlanner = () => {
                       </span>
                     </div>
                   </div>
-                )
+                );
               })}
               {(!recentTransactions || recentTransactions.length === 0) && (
                 <div className="text-center py-8 text-gray-500">
@@ -415,10 +501,10 @@ const BudgetPlanner = () => {
                 </div>
               )}
             </div>
-            {(recentTransactions && recentTransactions.length > 0) && (
+            {recentTransactions && recentTransactions.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <button
-                  onClick={() => window.location.href = '/transactions'}
+                  onClick={() => (window.location.href = "/transactions")}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                 >
                   View All Transactions
@@ -454,7 +540,9 @@ const BudgetPlanner = () => {
                   {getMonthName(selectedMonth)}
                 </span>
               </div>
-              <p className="card-description">Track your spending against budget limits</p>
+              <p className="card-description">
+                Track your spending against budget limits
+              </p>
             </div>
             <div className="card-content">
               <div className="space-y-4">
@@ -469,8 +557,12 @@ const BudgetPlanner = () => {
                 {budgetInsights.categories.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
                     <Target size={48} className="mx-auto mb-4 text-gray-300" />
-                    <p className="text-lg font-medium">No budget categories set</p>
-                    <p className="text-sm">Add categories to start tracking your budget</p>
+                    <p className="text-lg font-medium">
+                      No budget categories set
+                    </p>
+                    <p className="text-sm">
+                      Add categories to start tracking your budget
+                    </p>
                   </div>
                 )}
               </div>
@@ -504,7 +596,9 @@ const BudgetPlanner = () => {
                 <TrendingUp size={20} className="text-blue-600" />
                 <h3 className="card-title">Budget Insights</h3>
               </div>
-              <p className="card-description">Smart suggestions for your budget</p>
+              <p className="card-description">
+                Smart suggestions for your budget
+              </p>
             </div>
             <div className="card-content">
               <div className="space-y-3">
@@ -512,10 +606,13 @@ const BudgetPlanner = () => {
                   <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <AlertTriangle size={16} className="text-red-600" />
-                      <span className="text-sm font-medium text-red-800">Budget Exceeded</span>
+                      <span className="text-sm font-medium text-red-800">
+                        Budget Exceeded
+                      </span>
                     </div>
                     <p className="text-sm text-red-700 mt-1">
-                      You've spent {budgetInsights.overallProgress.toFixed(1)}% of your total budget.
+                      You've spent {budgetInsights.overallProgress.toFixed(1)}%
+                      of your total budget.
                     </p>
                   </div>
                 )}
@@ -524,22 +621,34 @@ const BudgetPlanner = () => {
                   <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <CheckCircle size={16} className="text-green-600" />
-                      <span className="text-sm font-medium text-green-800">Great Job!</span>
+                      <span className="text-sm font-medium text-green-800">
+                        Great Job!
+                      </span>
                     </div>
                     <p className="text-sm text-green-700 mt-1">
-                      You're doing well with {(100 - budgetInsights.overallProgress).toFixed(1)}% of your budget remaining.
+                      You're doing well with{" "}
+                      {(100 - budgetInsights.overallProgress).toFixed(1)}% of
+                      your budget remaining.
                     </p>
                   </div>
                 )}
 
-                {budgetInsights.potentialSavings > budgetInsights.savingsGoal && (
+                {budgetInsights.potentialSavings >
+                  budgetInsights.savingsGoal && (
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <TrendingUp size={16} className="text-blue-600" />
-                      <span className="text-sm font-medium text-blue-800">Savings Opportunity</span>
+                      <span className="text-sm font-medium text-blue-800">
+                        Savings Opportunity
+                      </span>
                     </div>
                     <p className="text-sm text-blue-700 mt-1">
-                      You could save {formatCurrency(budgetInsights.potentialSavings - budgetInsights.savingsGoal)} more than your goal!
+                      You could save{" "}
+                      {formatCurrency(
+                        budgetInsights.potentialSavings -
+                          budgetInsights.savingsGoal,
+                      )}{" "}
+                      more than your goal!
                     </p>
                   </div>
                 )}
@@ -558,7 +667,7 @@ const BudgetPlanner = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BudgetPlanner
+export default BudgetPlanner;

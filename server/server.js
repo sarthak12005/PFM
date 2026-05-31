@@ -30,23 +30,31 @@ app.use('/api/', limiter);
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:5173", // React frontend
-  "http://localhost:5173", // React frontend
+  "http://localhost:3000", // Alternative React port
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:3000",
   "https://pfm-finance.vercel.app",
   process.env.CLIENT_URL
-];
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error("CORS policy does not allow this origin"), false);
+    if (allowedOrigins.includes(origin) || !origin) {
+      return callback(null, true);
     }
-    return callback(null, true);
+    return callback(new Error("CORS policy does not allow this origin"), false);
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true // ✅ important if you send cookies/JWT
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: true, // ✅ important if you send cookies/JWT
+  optionsSuccessStatus: 200,
+  maxAge: 86400 // ✅ Cache preflight for 24 hours
 }));
+
+// Handle preflight requests explicitly
+app.options("*", cors());
 
 
 // Body parser middleware

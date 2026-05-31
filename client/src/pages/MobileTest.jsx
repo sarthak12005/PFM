@@ -287,7 +287,7 @@ const MobileTest = () => {
             title: 'Test Transaction',
             amount: 100,
             type: 'expense',
-            category: 'Food & Dining',
+            category: 'Food',
             date: '2024-01-15',
             description: 'Test description'
           }}

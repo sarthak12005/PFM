@@ -13,13 +13,11 @@ import { initPWA } from './utils/pwa'
 initPWA()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <CategoriesProvider>
-          <App />
-        </CategoriesProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
+  <BrowserRouter>
+    <AuthProvider>
+      <CategoriesProvider>
+        <App />
+      </CategoriesProvider>
+    </AuthProvider>
+  </BrowserRouter>,
 )

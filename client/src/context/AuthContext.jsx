@@ -51,28 +51,42 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is logged in on app start
   useEffect(() => {
+    let isMounted = true
+    const controller = new AbortController()
+
     const checkAuth = async () => {
       const token = localStorage.getItem('token')
       if (token) {
         try {
           const response = await authAPI.getMe()
-          if (response.data.success) {
-            dispatch({ type: 'SET_USER', payload: response.data.user })
-          } else {
-            throw new Error('Failed to get user data')
+          if (isMounted) {
+            if (response.data.success) {
+              dispatch({ type: 'SET_USER', payload: response.data.user })
+            } else {
+              throw new Error('Failed to get user data')
+            }
           }
         } catch (error) {
-          console.error('Auth check failed:', error)
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
-          dispatch({ type: 'LOGOUT' })
+          if (isMounted) {
+            console.error('Auth check failed:', error.message)
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            dispatch({ type: 'LOGOUT' })
+          }
         }
       } else {
-        dispatch({ type: 'SET_LOADING', payload: false })
+        if (isMounted) {
+          dispatch({ type: 'SET_LOADING', payload: false })
+        }
       }
     }
 
     checkAuth()
+
+    return () => {
+      isMounted = false
+      controller.abort()
+    }
   }, [])
 
   const login = async (email, password) => {

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Plus, Edit3, Trash2, Save, X, Target, Sliders } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { categoriesAPI } from '../../services/api'
+// fallback for development if API not available
+import { STANDARD_CATEGORIES } from '../../constants/categories'
 
 const BudgetInputForm = ({ month, categories, savingsGoal, onUpdate, onCategoryUpdate }) => {
   const [formData, setFormData] = useState({
@@ -9,25 +12,26 @@ const BudgetInputForm = ({ month, categories, savingsGoal, onUpdate, onCategoryU
   })
   const [showAddCategory, setShowAddCategory] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
-  const [newCategory, setNewCategory] = useState({
-    name: '',
-    budgetAmount: '',
-    color: '#3B82F6'
-  })
+  const [selectedCategoryName, setSelectedCategoryName] = useState('')
+  const [budgetAmount, setBudgetAmount] = useState('')
 
-  // Predefined category options
-  const predefinedCategories = [
-    { name: 'Food', color: '#f87171', icon: '🍽️' },
-    { name: 'Housing', color: '#60a5fa', icon: '🏠' },
-    { name: 'Transportation', color: '#34d399', icon: '🚗' },
-    { name: 'Entertainment', color: '#facc15', icon: '🎬' },
-    { name: 'Shopping', color: '#a78bfa', icon: '🛍️' },
-    { name: 'Utilities', color: '#fb7185', icon: '⚡' },
-    { name: 'Healthcare', color: '#fbbf24', icon: '🏥' },
-    { name: 'Education', color: '#10b981', icon: '📚' },
-    { name: 'Travel', color: '#06b6d4', icon: '✈️' },
-    { name: 'Insurance', color: '#8b5cf6', icon: '🛡️' }
-  ]
+  // Use standardized expense categories fetched from API
+  const [expenseCategories, setExpenseCategories] = React.useState(STANDARD_CATEGORIES.expense || [])
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      try {
+        const res = await categoriesAPI.getAll({ type: 'expense' })
+        if (mounted) setExpenseCategories(res.data.data || [])
+      } catch (err) {
+        // keep fallback
+        console.error('Failed to load expense categories:', err)
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [])
 
   useEffect(() => {
     setFormData({
@@ -42,41 +46,45 @@ const BudgetInputForm = ({ month, categories, savingsGoal, onUpdate, onCategoryU
   }
 
   const handleAddCategory = () => {
-    if (!newCategory.name.trim()) {
-      toast.error('Category name is required')
+    if (!selectedCategoryName.trim()) {
+      toast.error('Please select a category')
       return
     }
 
-    if (!newCategory.budgetAmount || parseFloat(newCategory.budgetAmount) <= 0) {
+    if (!budgetAmount || parseFloat(budgetAmount) <= 0) {
       toast.error('Budget amount must be greater than 0')
       return
     }
 
     const categoryExists = formData.categories.some(
-      cat => cat.name.toLowerCase() === newCategory.name.toLowerCase()
+      cat => cat.name === selectedCategoryName
     )
 
     if (categoryExists) {
-      toast.error('Category already exists')
+      toast.error(`${selectedCategoryName} is already in your budget`)
       return
     }
+
+    // Get category details from standard categories
+    const categoryDetails = expenseCategories.find(cat => cat.name === selectedCategoryName)
 
     const updatedCategories = [
       ...formData.categories,
       {
-        name: newCategory.name.trim(),
-        budgetAmount: parseFloat(newCategory.budgetAmount),
-        color: newCategory.color,
+        name: selectedCategoryName,
+        budgetAmount: parseFloat(budgetAmount),
+        color: categoryDetails?.color || '#3B82F6',
         spentAmount: 0
       }
     ]
 
     setFormData(prev => ({ ...prev, categories: updatedCategories }))
-    setNewCategory({ name: '', budgetAmount: '', color: '#3B82F6' })
+    setSelectedCategoryName('')
+    setBudgetAmount('')
     setShowAddCategory(false)
     
     // Auto-save the new category
-    onCategoryUpdate(newCategory.name.trim(), parseFloat(newCategory.budgetAmount), newCategory.color)
+    onCategoryUpdate(selectedCategoryName, parseFloat(budgetAmount), categoryDetails?.color || '#3B82F6')
   }
 
   const handleEditCategory = (index) => {
@@ -85,6 +93,12 @@ const BudgetInputForm = ({ month, categories, savingsGoal, onUpdate, onCategoryU
 
   const handleSaveCategory = (index) => {
     const category = formData.categories[index]
+    
+    if (!category.budgetAmount || parseFloat(category.budgetAmount) <= 0) {
+      toast.error('Budget amount must be greater than 0')
+      return
+    }
+
     onCategoryUpdate(category.name, category.budgetAmount, category.color)
     setEditingCategory(null)
   }
@@ -280,66 +294,80 @@ const BudgetInputForm = ({ month, categories, savingsGoal, onUpdate, onCategoryU
           )}
         </div>
 
-        {/* Add Category Form */}
+        {/* Add Category Form - Category Selection Only (No Custom Categories) */}
         {showAddCategory && (
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h5 className="font-medium text-blue-900 mb-3">Add New Category</h5>
+            <h5 className="font-medium text-blue-900 mb-4">Select Category to Budget</h5>
+            <p className="text-xs text-blue-700 mb-4">Choose from available categories. You can only budget for predefined categories.</p>
             
-            {/* Predefined Categories */}
-            <div className="mb-4">
-              <p className="text-sm text-blue-700 mb-2">Quick select:</p>
-              <div className="flex flex-wrap gap-2">
-                {predefinedCategories
-                  .filter(pred => !formData.categories.some(cat => cat.name === pred.name))
-                  .map((predefined) => (
-                    <button
-                      key={predefined.name}
-                      onClick={() => selectPredefinedCategory(predefined)}
-                      className="px-3 py-1 text-xs bg-white border border-blue-300 rounded-full hover:bg-blue-50 transition-colors flex items-center space-x-1"
-                    >
-                      <span>{predefined.icon}</span>
-                      <span>{predefined.name}</span>
-                    </button>
-                  ))}
+            <div className="space-y-3">
+              {/* Category Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <select
+                  value={selectedCategoryName}
+                  onChange={(e) => setSelectedCategoryName(e.target.value)}
+                  className="input w-full"
+                >
+                  <option value="">-- Select a Category --</option>
+                  {expenseCategories
+                    .filter(cat => !formData.categories.some(budgeted => budgeted.name === cat.name))
+                    .map(category => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                </select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-              <input
-                type="text"
-                placeholder="Category name"
-                value={newCategory.name}
-                onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
-                className="input"
-              />
-              <input
-                type="number"
-                placeholder="Budget amount"
-                value={newCategory.budgetAmount}
-                onChange={(e) => setNewCategory(prev => ({ ...prev, budgetAmount: e.target.value }))}
-                className="input"
-                min="0"
-                step="100"
-              />
-              <input
-                type="color"
-                value={newCategory.color}
-                onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
-                className="input h-10"
-              />
+              {/* Budget Amount */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Budget Amount</label>
+                <input
+                  type="number"
+                  placeholder="Enter budget amount"
+                  value={budgetAmount}
+                  onChange={(e) => setBudgetAmount(e.target.value)}
+                  className="input w-full"
+                  min="0"
+                  step="100"
+                />
+              </div>
+
+              {/* Category Preview */}
+              {selectedCategoryName && (
+                <div className="p-3 bg-white border border-blue-200 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Preview:</p>
+                  <div className="flex items-center space-x-2">
+                    {expenseCategories.find(cat => cat.name === selectedCategoryName) && (
+                      <>
+                        <div 
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: expenseCategories.find(cat => cat.name === selectedCategoryName)?.color }}
+                        ></div>
+                        <span className="font-medium text-gray-900">{selectedCategoryName}</span>
+                        <span className="text-gray-600">-</span>
+                        <span className="text-gray-700">{formatCurrency(parseFloat(budgetAmount) || 0)}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
             
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mt-4">
               <button
                 onClick={handleAddCategory}
                 className="btn-primary text-sm"
               >
-                Add Category
+                <Plus size={16} className="mr-1" />
+                Add to Budget
               </button>
               <button
                 onClick={() => {
                   setShowAddCategory(false)
-                  setNewCategory({ name: '', budgetAmount: '', color: '#3B82F6' })
+                  setSelectedCategoryName('')
+                  setBudgetAmount('')
                 }}
                 className="btn-secondary text-sm"
               >

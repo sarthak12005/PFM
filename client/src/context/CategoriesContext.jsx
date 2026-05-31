@@ -117,14 +117,44 @@ export const CategoriesProvider = ({ children }) => {
   }
 
   // Initial fetch
-  // ✅ Key fix: Conditional fetching
+  // ✅ Key fix: Conditional fetching with cleanup
   useEffect(() => {
-    const isAuthPage = ['/login', '/signup'].includes(location.pathname)
+    let isMounted = true
+    const controller = new AbortController()
 
-    if (token && !isAuthPage) {
-      fetchCategories()
+    const load = async () => {
+      const isAuthPage = ['/login', '/signup'].includes(location.pathname)
+      if (token && !isAuthPage && isMounted) {
+        // Check if we have cached data within 5 minutes
+        if (!lastFetch || Date.now() - lastFetch >= CACHE_DURATION) {
+          setLoading(true)
+          try {
+            const response = await categoriesAPI.getAll({ includeStats: true })
+            if (isMounted && response.data.success) {
+              const categoriesData = response.data.data || []
+              setCategories(categoriesData)
+              setLastFetch(Date.now())
+            }
+          } catch (error) {
+            if (isMounted) {
+              console.error('Error fetching categories:', error.message)
+            }
+          } finally {
+            if (isMounted) {
+              setLoading(false)
+            }
+          }
+        }
+      }
     }
-  }, [token, location.pathname])
+
+    load()
+
+    return () => {
+      isMounted = false
+      controller.abort()
+    }
+  }, [token, location.pathname, lastFetch, CACHE_DURATION])
 
 
   const value = useMemo(() => ({

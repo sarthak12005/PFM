@@ -16,15 +16,16 @@ const EditTransactionModal = ({ transaction, onSubmit, onCancel, isOpen = true }
 
   const categories = {
     expense: [
-      'Food & Dining',
+      'Food',
+      'Housing',
       'Transportation',
-      'Shopping',
       'Entertainment',
-      'Bills & Utilities',
+      'Shopping',
+      'Utilities',
       'Healthcare',
       'Education',
       'Travel',
-      'Other'
+      'Insurance'
     ],
     income: [
       'Salary',

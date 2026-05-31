@@ -2,6 +2,8 @@ const express = require('express');
 const { body, validationResult, query } = require('express-validator');
 const Transaction = require('../models/Transaction');
 const Budget = require('../models/Budget');
+const Category = require('../models/Category');
+const mongoose = require('mongoose');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -37,6 +39,11 @@ router.get('/', auth, [
       search
     } = req.query;
 
+    // Debug log
+    console.log('📥 GET /transactions request:');
+    console.log('  User ID from JWT:', req.user.id);
+    console.log('  Filters:', { type, category, startDate, endDate });
+
     // Build query
     const query = { user: req.user.id };
 
@@ -60,14 +67,26 @@ router.get('/', auth, [
     const transactions = await Transaction.find(query)
       .sort({ date: -1, createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .populate('category', 'name icon color');
 
     const total = await Transaction.countDocuments(query);
+
+    // Convert populated category object to name for backward compatibility
+    const transactionsToSend = transactions.map(t => {
+      const obj = t.toObject();
+      // If category is an object (populated from ObjectId), extract the name
+      if (obj.category && typeof obj.category === 'object' && obj.category.name) {
+        obj.category = obj.category.name;
+      }
+      // Otherwise leave as is (string for old data, or null if not populated)
+      return obj;
+    });
 
     res.json({
       success: true,
       data: {
-        transactions,
+        transactions: transactionsToSend,
         pagination: {
           current: parseInt(page),
           pages: Math.ceil(total / limit),
@@ -229,24 +248,48 @@ router.post('/', auth, [
       });
     }
 
+    // Resolve category to Category ObjectId (accept name or id)
+    let categoryId = null;
+    if (req.body.category) {
+      if (mongoose.Types.ObjectId.isValid(req.body.category)) {
+        categoryId = req.body.category;
+      } else {
+        const cat = await Category.findOne({ name: req.body.category });
+        if (!cat) {
+          return res.status(400).json({ success: false, message: 'Invalid category' });
+        }
+        categoryId = cat._id;
+      }
+    }
+
     const transactionData = {
       ...req.body,
       user: req.user.id,
-      date: req.body.date || new Date()
+      date: req.body.date || new Date(),
+      category: categoryId
     };
 
     const transaction = new Transaction(transactionData);
     await transaction.save();
+
+    // populate category for response
+    await transaction.populate('category', 'name icon color');
 
     // Update budget if it's an expense
     if (transaction.type === 'expense') {
       await Budget.updateBudgetFromTransaction(transaction);
     }
 
+    const transactionObj = transaction.toObject();
+    // Convert populated ObjectId category to name string
+    if (transactionObj.category && typeof transactionObj.category === 'object' && transactionObj.category.name) {
+      transactionObj.category = transactionObj.category.name;
+    }
+
     res.status(201).json({
       success: true,
       message: 'Transaction created successfully',
-      data: transaction
+      data: transactionObj
     });
 
   } catch (error) {
@@ -300,10 +343,7 @@ router.put('/:id', auth, [
       });
     }
 
-    const transaction = await Transaction.findOne({
-      _id: req.params.id,
-      user: req.user.id
-    });
+    const transaction = await Transaction.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!transaction) {
       return res.status(404).json({
@@ -315,9 +355,28 @@ router.put('/:id', auth, [
     // Store old values for budget update
     const oldTransaction = { ...transaction.toObject() };
 
-    // Update transaction
-    Object.assign(transaction, req.body);
+    // If category is provided, resolve to ObjectId
+    if (req.body.category) {
+      if (mongoose.Types.ObjectId.isValid(req.body.category)) {
+        transaction.category = req.body.category;
+      } else {
+        const cat = await Category.findOne({ name: req.body.category });
+        if (!cat) {
+          return res.status(400).json({ success: false, message: 'Invalid category' });
+        }
+        transaction.category = cat._id;
+      }
+    }
+
+    // Update other fields
+    const updatableFields = ['title', 'amount', 'type', 'date', 'description', 'paymentMethod', 'tags', 'isRecurring', 'recurringDetails', 'attachments'];
+    updatableFields.forEach(f => {
+      if (req.body[f] !== undefined) transaction[f] = req.body[f];
+    });
+
     await transaction.save();
+
+    await transaction.populate('category', 'name icon color');
 
     // Update budget if expense category or amount changed
     if (transaction.type === 'expense' || oldTransaction.type === 'expense') {
@@ -331,10 +390,16 @@ router.put('/:id', auth, [
       }
     }
 
+    const transactionObj = transaction.toObject();
+    // Convert populated ObjectId category to name string
+    if (transactionObj.category && typeof transactionObj.category === 'object' && transactionObj.category.name) {
+      transactionObj.category = transactionObj.category.name;
+    }
+
     res.json({
       success: true,
       message: 'Transaction updated successfully',
-      data: transaction
+      data: transactionObj
     });
 
   } catch (error) {

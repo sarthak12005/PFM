@@ -1,16 +1,40 @@
 import axios from 'axios'
 
+// ✅ Request deduplication cache
+const pendingRequests = new Map()
+
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_ENDPOINT || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // ✅ Enable credentials for CORS
+  timeout: 10000, // ✅ 10 second timeout
 })
 
-// Request interceptor to add auth token
+// ✅ Request deduplication interceptor
 api.interceptors.request.use(
   (config) => {
+    // For GET requests, check if same request is already pending
+    if (config.method === 'get') {
+      const key = `${config.method}:${config.url}:${JSON.stringify(config.params || {})}`
+      
+      if (pendingRequests.has(key)) {
+        // Return cached pending request
+        return pendingRequests.get(key)
+      }
+      
+      // Store this request promise
+      const promise = Promise.resolve(config)
+      pendingRequests.set(key, promise)
+      
+      // Clean up after request completes
+      promise.finally(() => {
+        setTimeout(() => pendingRequests.delete(key), 100)
+      })
+    }
+
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -18,7 +42,8 @@ api.interceptors.request.use(
     return config
   },
   (error) => {
-    return console.log(error);
+    console.error('Request interceptor error:', error)
+    return Promise.reject(error)
   }
 )
 
@@ -29,6 +54,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired or invalid
       localStorage.removeItem('token')
+      localStorage.removeItem('user')
       window.location.href = '/login'
     }
     return Promise.reject(error)

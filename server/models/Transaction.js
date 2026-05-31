@@ -26,9 +26,9 @@ const transactionSchema = new mongoose.Schema({
     }
   },
   category: {
-    type: String,
-    required: [true, 'Category is required'],
-    trim: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: [true, 'Category is required']
   },
   date: {
     type: Date,
@@ -145,7 +145,7 @@ transactionSchema.statics.getUserSummary = async function(userId, startDate, end
   return result;
 };
 
-// Static method to get category-wise breakdown
+// Static method to get category-wise breakdown (handles both old string & new ObjectId categories)
 transactionSchema.statics.getCategoryBreakdown = async function(userId, type = 'expense', startDate, endDate) {
   const matchStage = {
     user: new mongoose.Types.ObjectId(userId),
@@ -165,12 +165,40 @@ transactionSchema.statics.getCategoryBreakdown = async function(userId, type = '
         _id: '$category',
         total: { $sum: '$amount' },
         count: { $sum: 1 },
-        avgAmount: { $avg: '$amount' }
+        avgAmount: { $avg: '$amount' },
+        isObjectId: { $first: { $eq: [{ $type: '$category' }, 'objectId'] } }
       }
     },
+    // Lookup category details for ObjectId categories only
+    {
+      $lookup: {
+        from: 'categories',
+        let: { catId: '$_id', isOid: '$isObjectId' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$_id', '$$catId'] },
+                  { $eq: ['$$isOid', true] }
+                ]
+              }
+            }
+          }
+        ],
+        as: 'categoryDoc'
+      }
+    },
+    { $unwind: { path: '$categoryDoc', preserveNullAndEmptyArrays: true } },
     {
       $project: {
-        category: '$_id',
+        category: {
+          $cond: [
+            { $eq: ['$isObjectId', true] },
+            { $ifNull: ['$categoryDoc.name', 'Uncategorized'] },  // ObjectId category
+            '$_id'  // String category (old data) - use as is
+          ]
+        },
         amount: '$total',
         count: 1,
         avgAmount: { $round: ['$avgAmount', 2] },

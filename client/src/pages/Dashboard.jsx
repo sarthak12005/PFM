@@ -477,41 +477,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <button className="card hover:shadow-lg transition-shadow cursor-pointer">
-          <div className="card-content text-center">
-            <ArrowUpRight className="mx-auto mb-2 text-green-600" size={24} />
-            <h4 className="font-semibold text-gray-900">Add Income</h4>
-            <p className="text-sm text-gray-600">Record new income</p>
-          </div>
-        </button>
-
-        <button className="card hover:shadow-lg transition-shadow cursor-pointer">
-          <div className="card-content text-center">
-            <ArrowDownRight className="mx-auto mb-2 text-red-600" size={24} />
-            <h4 className="font-semibold text-gray-900">Add Expense</h4>
-            <p className="text-sm text-gray-600">Record new expense</p>
-          </div>
-        </button>
-
-        <button className="card hover:shadow-lg transition-shadow cursor-pointer">
-          <div className="card-content text-center">
-            <PiggyBank className="mx-auto mb-2 text-blue-600" size={24} />
-            <h4 className="font-semibold text-gray-900">Set Goal</h4>
-            <p className="text-sm text-gray-600">Create savings goal</p>
-          </div>
-        </button>
-
-        <button className="card hover:shadow-lg transition-shadow cursor-pointer">
-          <div className="card-content text-center">
-            <Calendar className="mx-auto mb-2 text-purple-600" size={24} />
-            <h4 className="font-semibold text-gray-900">View Calendar</h4>
-            <p className="text-sm text-gray-600">Monthly overview</p>
-          </div>
-        </button>
-      </div>
-
         {/* Quick Add Modal */}
         <QuickAddModal
           isOpen={showQuickAdd}

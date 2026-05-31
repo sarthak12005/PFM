@@ -232,8 +232,20 @@ budgetSchema.statics.updateBudgetFromTransaction = async function(transaction, i
   
   const month = `${transaction.date.getFullYear()}-${String(transaction.date.getMonth() + 1).padStart(2, '0')}`;
   const budget = await this.getOrCreateBudget(transaction.user, month);
-  
-  await budget.updateCategorySpent(transaction.category, transaction.amount, !isDelete);
+  // Resolve category to name if it's an ObjectId reference
+  let categoryName = transaction.category;
+  try {
+    if (typeof categoryName !== 'string') {
+      const Category = mongoose.model('Category');
+      const catDoc = await Category.findById(categoryName);
+      categoryName = catDoc ? catDoc.name : 'Uncategorized';
+    }
+  } catch (err) {
+    console.error('Error resolving category for budget update:', err);
+    categoryName = 'Uncategorized';
+  }
+
+  await budget.updateCategorySpent(categoryName, transaction.amount, !isDelete);
   await budget.save();
   
   return budget;

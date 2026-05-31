@@ -14,18 +14,20 @@ const QuickAddModal = ({ isOpen, onClose, type = 'expense', onSuccess }) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
+  // const [categories, setCategories] = useState({});
 
   const categories = {
     expense: [
-      'Food & Dining',
+      'Food',
+      'Housing',
       'Transportation',
-      'Shopping',
       'Entertainment',
-      'Bills & Utilities',
+      'Shopping',
+      'Utilities',
       'Healthcare',
       'Education',
       'Travel',
-      'Other'
+      'Insurance'
     ],
     income: [
       'Salary',

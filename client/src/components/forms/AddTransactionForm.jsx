@@ -20,15 +20,16 @@ const AddTransactionForm = ({ onSubmit, onCancel, initialData = null }) => {
   // Fallback categories if context is loading or empty
   const fallbackCategories = {
     expense: [
-      'Food & Dining',
+      'Food',
+      'Housing',
       'Transportation',
-      'Shopping',
       'Entertainment',
-      'Bills & Utilities',
+      'Shopping',
+      'Utilities',
       'Healthcare',
       'Education',
       'Travel',
-      'Other'
+      'Insurance'
     ],
     income: [
       'Salary',
