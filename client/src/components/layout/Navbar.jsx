@@ -150,7 +150,7 @@ const Navbar = () => {
                     : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                 }`}
                 style={{
-                  animationDelay: `${index * 50}ms`,
+                  animationDelay: `${1 * 50}ms`,
                   animation: isMobileMenuOpen
                     ? "slideInFromRight 0.3s ease-out forwards"
                     : "none",
